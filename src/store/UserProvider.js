@@ -2,7 +2,7 @@ import * as React from 'react'
 
 const UserContext = React.createContext(null);
 
-const inicialState = {};
+var inicialState = (sessionStorage.getItem('user') !== null)?JSON.parse(sessionStorage.getItem('user')):{};
 function userReducer(state, action) {
   switch (action.type) {
     case "UPDATE_USER":
