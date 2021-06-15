@@ -13,7 +13,19 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import { useUser } from '../../store/UserProvider';
 import Redireccionar from '../redireccionar';
-
+import {Link} from 'react-router-dom';
+import './styles.css';
+import Drawer from '@material-ui/core/Drawer';
+import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import Divider from '@material-ui/core/Divider';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import InboxIcon from '@material-ui/icons/MoveToInbox';
+import MailIcon from '@material-ui/icons/Mail';
+import clsx from 'clsx';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -25,6 +37,12 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
+  list: {
+  width: 250,
+  },
+  fullList: {
+    width: 'auto',
+  },
 }));
 
 export default function ButtonAppBar() {
@@ -32,7 +50,13 @@ export default function ButtonAppBar() {
   const { state,dispatch } = useUser();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-
+  const [anchor, setAnchor] = React.useState('left');
+  const [estado, setEstado] = React.useState({
+     top: false,
+     left: false,
+     bottom: false,
+     right: false,
+   });
 
    const handleMenu = (event) => {
      setAnchorEl(event.currentTarget);
@@ -44,16 +68,49 @@ export default function ButtonAppBar() {
    const cerrarSesion = () =>{
      dispatch({type:"UPDATE_USER",item:{}});
    }
+
+  const toggleDrawer = (anchor, open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+
+    setEstado({ ...state, [anchor]: open });
+  };
+  const list = (anchor) => (
+    <div
+      className={clsx(classes.list, {
+        [classes.fullList]: anchor === 'top' || anchor === 'bottom',
+      })}
+      role="presentation"
+
+    >
+      <List>
+        {['usuarios','proyectos'].map((text, index) => (
+        <Link to={`/${text}`} className="links text-color">  <ListItem button key={text}>
+            <ListItemIcon><GroupAddIcon /></ListItemIcon>
+            <ListItemText primary={text} />
+          </ListItem>
+          </Link>
+        ))}
+      </List>
+      <Divider />
+
+    </div>
+  );
   return (
     <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
 
           <Typography variant="h6" className={classes.title}>
-            Software Constructora
+            <Link to="/proyectos" className="links">    Software Constructora    </Link>
           </Typography>
+
           {(Object.keys(state).length > 0) ? (
-                     <div>
+                     <>
+                       <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu"  onClick={toggleDrawer(anchor, true)}>
+                         <MenuIcon />
+                       </IconButton>
                        <IconButton
                          aria-label="account of current user"
                          aria-controls="menu-appbar"
@@ -81,11 +138,15 @@ export default function ButtonAppBar() {
                          <MenuItem>{state.username}</MenuItem>
                          <MenuItem onClick={cerrarSesion}>Log out</MenuItem>
                        </Menu>
-                     </div>
+                     </>
                    ):''}
         </Toolbar>
       </AppBar>
       <Redireccionar url="/" estado={(Object.keys(state).length === 0)}/>
+
+       <Drawer anchor={anchor} open={estado[anchor]} onClose={toggleDrawer(anchor, false)}>
+         {list(anchor)}
+       </Drawer>
     </div>
   );
 }
