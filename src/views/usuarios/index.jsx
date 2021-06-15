@@ -95,7 +95,7 @@ columns={[
         </Select>)
       }
     },
-          { title: 'Clave', field: 'clave', validate: rowData => Boolean(rowData.clave) },
+          { title: 'Clave', field: 'clave' },
 
       ]}
 icons={tableIcons}
